@@ -7,60 +7,189 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
-## About Laravel
+# Proyecto de pago con Paypal en Laravel 10
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Este proyecto es una aplicación que simula un checkout con Laravel 10, que utiliza JWT para la autenticación de usuarios y PayPal Sandbox para el procesamiento de pagos. A continuación, se detallan las instrucciones para configurar y ejecutar el proyecto.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Tabla de Contenidos
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- [Requisitos Previos](#requisitos-previos)
+- [Instalación](#instalación)
+- [Configuración](#configuración)
+- [Migraciones y Seeders](#migraciones-y-seeders)
+- [Ejecución del Proyecto](#ejecución-del-proyecto)
+- [Pruebas con Postman](#pruebas-con-postman)
+  - [Autenticación con JWT](#autenticación-con-jwt)
+  - [Proceso de Checkout](#proceso-de-checkout)
+  - [Verificación del Pago](#verificación-del-pago)
 
-## Learning Laravel
+## Requisitos Previos
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Antes de comenzar, Asegurarse de tener instalados los siguientes componentes en tu sistema:
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+- PHP >= 8.1
+- Composer
+- MySQL o cualquier otra base de datos compatible
+- Postman para pruebas de API
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Instalación
 
-## Laravel Sponsors
+Sigue estos pasos para instalar el proyecto en tu entorno local:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+1. **Clonar el repositorio:**
 
-### Premium Partners
+   ```bash
+   git clone https://github.com/Coreas94/CheckoutProject.git
+   cd CheckoutProject
+   ```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+2. **Instalar las dependencias de PHP:**
 
-## Contributing
+   ```bash
+   composer install
+   ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+3. **Crear la base de datos MySQL:**
 
-## Code of Conduct
+   Se debe crear una base de datos en MySQL llamada `checkout_project` antes de continuar con la configuración.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+   ```sql
+   CREATE DATABASE checkout_project;
 
-## Security Vulnerabilities
+## Configuración
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+1. **Configurar el archivo `.env`:**
 
-## License
+   Se debe copiar el archivo `.env.example` y renombrar a `.env`. Luego, actualizar las siguientes variables en el archivo `.env`:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+   ```
+    env
+    APP_NAME=Laravel
+    APP_ENV=local
+    APP_KEY=base64:...
+    APP_DEBUG=true
+    APP_URL=http://localhost
+
+    DB_CONNECTION=mysql
+    DB_HOST=127.0.0.1
+    DB_PORT=3306
+    DB_DATABASE=checkout_project
+    DB_USERNAME=usuario-base-de-datos
+    DB_PASSWORD=contraseña-base-de-datos
+
+    JWT_SECRET=tu_jwt_secret
+
+    PAYPAL_MODE=sandbox
+    PAYPAL_SANDBOX_CLIENT_ID=AQLvixvO-RKMtdh-tZp1C3FS9O3JNN_T3rcLcE-Mmg5CmsemgWHzfrNJbEjUqbeKXUUVE6FekD6JucSn
+    PAYPAL_SANDBOX_CLIENT_SECRET=EJfWJ4JlZkfl4d7uVuyDEvuXxEqIzCB05LoXTNCJheWPtgf7SJR9aEmojIJKNnh3CpALGjSXsiP2VsEe
+    PAYPAL_CURRENCY=USD
+   ```
+
+   Asegurarse de configurar correctamente la base de datos y las credenciales de PayPal.
+
+2. **Generar la clave de la aplicación:**
+
+   ```bash
+   php artisan key:generate
+   ```
+
+3. **Generar la clave JWT:**
+
+   ```bash
+   php artisan jwt:secret
+   ```
+
+## Migraciones y Seeders
+
+1. **Ejecutar las migraciones:**
+
+   ```bash
+   php artisan migrate
+   ```
+
+2. **Ejecutar el seeder de usuario:**
+
+   Para crear un usuario de prueba en la base de datos, ejecuta el siguiente comando:
+
+   ```bash
+   php artisan db:seed --class=UserSeeder
+   ```
+
+   Esto creará un usuario con los siguientes datos:
+
+   - **Email:** `usuario@test.com`
+   - **Contraseña:** `Usuario12345`
+
+   Se puede utilizar este usuario para iniciar sesión y probar la funcionalidad de la aplicación.
+
+## Ejecución del Proyecto
+
+1. **Inicia el servidor de desarrollo:**
+
+   ```bash
+   php artisan serve
+   ```
+
+## Pruebas con Postman
+
+### Autenticación con JWT
+
+1. **Login:**
+
+   - **Método:** `POST`
+   - **URL:** `http://localhost:8000/api/auth`
+   - **Headers:**
+     - `Content-Type: application/json`
+   - **Body (raw JSON):**
+     ```json
+     {
+       "email": "usuario@test.com",
+       "password": "Usuario12345"
+     }
+     ```
+   - **Respuesta esperada:**
+     - Un token JWT que se deberá usar en las siguientes solicitudes.
+
+### Proceso de Checkout
+
+2. **Datos de inicio de sesión para PayPal Sandbox:**
+
+   Antes de realizar el proceso de checkout, utilizar los siguientes datos para aprobar los pagos en PayPal Sandbox:
+
+   - **Sandbox URL:** [https://sandbox.paypal.com](https://sandbox.paypal.com)
+   - **Email:** `sb-uwpqu32019392@personal.example.com`
+   - **Password:** `5b,S<OJP`
+
+   **Nota:** Al realizar el pago y recibir la URL de aprobación (`approval_url`), abrir una nueva ventana en el navegador (preferiblemente en modo incógnito), iniciar sesión en PayPal con los datos anteriores, y luego carga la URL proporcionada por Postman.
+
+3. **Crear un Pedido (Checkout):**
+
+   - **Método:** `POST`
+   - **URL:** `http://localhost:8000/api/checkout`
+   - **Headers:**
+     - `Content-Type: application/json`
+     - `Authorization: Bearer <token_jwt>`
+   - **Body (raw JSON):**
+     ```json
+     {
+       "amount": "20.99"
+     }
+     ```
+   - **Respuesta esperada:**
+     - Una URL de aprobación de PayPal (`approval_url`). Abrir esa URL en el navegador para aprobar el pago con la cuenta de PayPal Sandbox brindada en el paso anterior.
+
+### Verificación del Pago
+
+4. **Verificar el Pago:**
+
+   - **Método:** `GET`
+   - **URL:** `http://localhost:8000/api/payment/success?token=<token-paypal>`
+   - **Headers:**
+     - `Authorization: Bearer <tu_token_jwt>`
+   - **Respuesta esperada:**
+     - Un mensaje confirmando que el pago se completó con éxito y los detalles del pedido.
+
+    **Nota:** El ```token-paypal``` es el token que se puede visualizar al final del approval_url.
+
+
+**Creado por Josué Coreas**
